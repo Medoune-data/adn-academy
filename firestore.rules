@@ -1,0 +1,68 @@
+rules_version = '2';
+
+// À déployer via : firebase deploy --only firestore:rules
+// (ou coller directement dans Firebase Console > Firestore > Règles)
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Un admin est un simple document créé manuellement par toi dans
+    // Firebase Console > Firestore > collection "admins", avec pour ID
+    // l'UID de ton propre compte élève. Le contenu du document importe peu.
+    match /admins/{adminId} {
+      allow read: if request.auth != null && request.auth.uid == adminId;
+      allow write: if false; // jamais depuis le client
+    }
+
+    // Un élève lit/crée son propre profil. Un admin peut aussi créer un
+    // profil pour un élève (compte créé depuis /admin/eleves) et est seul
+    // à pouvoir modifier enrolledFormations.
+    match /students/{studentId} {
+      allow read: if isAdmin() || (request.auth != null && request.auth.uid == studentId);
+      allow list: if isAdmin();
+      allow create: if isAdmin() || (
+                    request.auth != null && request.auth.uid == studentId
+                    && request.resource.data.enrolledFormations == []);
+      allow update: if isAdmin() || (
+                    request.auth != null && request.auth.uid == studentId
+                    && request.resource.data.enrolledFormations == resource.data.enrolledFormations);
+    }
+
+    // Séances et fichiers d'une formation : lisibles par un élève inscrit
+    // à cette formation, ou par un admin. Écriture réservée à l'admin
+    // (page /admin/[slug]).
+    match /formations/{formationId}/seances/{seanceId} {
+      allow read: if isAdmin() || (request.auth != null &&
+        formationId in get(/databases/$(database)/documents/students/$(request.auth.uid)).data.enrolledFormations);
+      allow write: if isAdmin();
+    }
+
+    // Certificats : lecture publique (page de vérification), écriture admin uniquement.
+    match /certificates/{certId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ADN Battle — défi hebdomadaire : généré et écrit uniquement par les
+    // routes /api/battle/* via le SDK Admin (qui contourne ces règles).
+    // Le client ne fait que lire.
+    match /battle_weekly/{weekId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Classement du défi hebdomadaire : lecture publique (affichage du
+    // Top 10), écriture uniquement via /api/battle/weekly-score (SDK
+    // Admin) qui valide le score côté serveur avant d'écrire — jamais
+    // directement depuis le client, pour éviter la triche.
+    match /battle_weekly_scores/{weekId}/entries/{entryId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

@@ -1,0 +1,152 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* ADN Community / ADN Academy — design tokens : chaleureux, clair, accueillant */
+  --adn-bg: #fbf6ee;
+  --adn-surface: #ffffff;
+  --adn-surface-raised: #fff9ef;
+  --adn-border: rgba(36, 30, 23, 0.09);
+  --adn-border-strong: rgba(36, 30, 23, 0.18);
+  --adn-text: #241e17;
+  --adn-text-dim: #6e6255;
+  --adn-text-faint: #a99d8c;
+  --adn-accent: #d9622b;        /* terracotta — chaleur, communauté, énergie */
+  --adn-accent-dim: rgba(217, 98, 43, 0.10);
+  --adn-amber: #c9932e;         /* or doux — certification / premium */
+  --adn-amber-dim: rgba(201, 147, 46, 0.12);
+  --adn-teal: #1f7a6c;          /* accent secondaire — académie / données */
+  --adn-teal-dim: rgba(31, 122, 108, 0.10);
+}
+
+@theme inline {
+  --color-bg: var(--adn-bg);
+  --color-surface: var(--adn-surface);
+  --color-surface-raised: var(--adn-surface-raised);
+  --color-border: var(--adn-border);
+  --color-border-strong: var(--adn-border-strong);
+  --color-text: var(--adn-text);
+  --color-text-dim: var(--adn-text-dim);
+  --color-text-faint: var(--adn-text-faint);
+  --color-accent: var(--adn-accent);
+  --color-accent-dim: var(--adn-accent-dim);
+  --color-amber: var(--adn-amber);
+  --color-amber-dim: var(--adn-amber-dim);
+  --color-teal: var(--adn-teal);
+  --color-teal-dim: var(--adn-teal-dim);
+
+  --font-display: "Newsreader", serif;
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--adn-bg);
+  color: var(--adn-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--adn-accent);
+  color: #fff9ef;
+}
+
+/* Signature : traits pointillés reliant les étapes du parcours ADN —
+   la métaphore visuelle d'une communauté qui avance ensemble. */
+.story-dots {
+  background-image: radial-gradient(rgba(36, 30, 23, 0.14) 1.5px, transparent 1.5px);
+  background-size: 16px 16px;
+}
+
+.cell-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--adn-accent);
+  font-weight: 600;
+}
+
+/* Formes organiques flottantes en arrière-plan du hero — chaleur, mouvement,
+   sans jamais distraire du texte. */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.35;
+  animation: float 14s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(20px, -24px) scale(1.06); }
+}
+
+.blink-cursor::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--adn-accent);
+  margin-left: 4px;
+  vertical-align: text-bottom;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* Scroll-reveal utilisé par le composant <Reveal> */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blink-cursor::after,
+  .blob {
+    animation: none;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--adn-accent);
+  outline-offset: 3px;
+}
+
+.prose-adn {
+  color: var(--adn-text-dim);
+  font-weight: 300;
+  line-height: 1.75;
+}
+.prose-adn p { margin-bottom: 1.75rem; font-size: 1.05rem; }
+.prose-adn h2 { font-family: var(--font-display); font-style: italic; color: var(--adn-text); font-size: 1.75rem; margin: 2.5rem 0 1.25rem; border-left: 3px solid var(--adn-accent); padding-left: 1.25rem; }
+.prose-adn h3 { font-family: var(--font-display); font-style: italic; color: var(--adn-text); font-size: 1.35rem; margin: 2rem 0 1rem; }
+.prose-adn ul { list-style: disc; margin: 0 0 1.75rem 1.25rem; }
+.prose-adn li { margin-bottom: 0.5rem; }
+.prose-adn table { width: 100%; border-collapse: collapse; margin: 2rem 0; font-size: 0.9rem; }
+.prose-adn th, .prose-adn td { border: 1px solid var(--adn-border); padding: 0.6rem 0.75rem; }
+.prose-adn th { background: rgba(36,30,23,0.03); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.1em; }
