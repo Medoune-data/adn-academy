@@ -4,6 +4,9 @@ import { generateBattleQuestions } from "@/lib/groq";
 import { getFallbackQuestions } from "@/lib/battle-fallback";
 import { getCurrentWeekId } from "@/lib/week";
 
+// firebase-admin nécessite le runtime Node.js (pas Edge).
+export const runtime = "nodejs";
+
 export async function GET(req: NextRequest) {
   try {
     const authHeader = req.headers.get("authorization") || "";
@@ -14,7 +17,7 @@ export async function GET(req: NextRequest) {
     await verifyStudentToken(idToken);
 
     const weekId = getCurrentWeekId();
-    const db = getAdminDb();
+    const db = await getAdminDb();
     const ref = db.collection("battle_weekly").doc(weekId);
     const snap = await ref.get();
 

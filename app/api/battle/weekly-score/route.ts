@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyStudentToken, getAdminDb } from "@/lib/firebase-admin";
 import { getCurrentWeekId } from "@/lib/week";
 
+// firebase-admin nécessite le runtime Node.js (pas Edge).
+export const runtime = "nodejs";
+
 export async function POST(req: NextRequest) {
   try {
     const { idToken, score, timeMs, studentName } = await req.json();
@@ -12,7 +15,7 @@ export async function POST(req: NextRequest) {
     const uid = decoded.uid;
 
     const weekId = getCurrentWeekId();
-    const db = getAdminDb();
+    const db = await getAdminDb();
     const weeklyDoc = await db.collection("battle_weekly").doc(weekId).get();
     if (!weeklyDoc.exists) {
       return NextResponse.json({ error: "Aucun défi actif cette semaine" }, { status: 400 });

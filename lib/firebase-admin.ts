@@ -1,6 +1,5 @@
 import { getApps, initializeApp, cert, App } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
-import { getFirestore } from "firebase-admin/firestore";
 
 let adminApp: App | null = null;
 
@@ -42,7 +41,15 @@ export async function verifyStudentToken(idToken: string) {
   return decoded; // decoded.uid, decoded.email, etc.
 }
 
-/** Accès Firestore côté serveur (bypass les règles clientes — usage admin uniquement). */
-export function getAdminDb() {
+/**
+ * Accès Firestore côté serveur (bypass les règles clientes — usage admin
+ * uniquement). Import différé : seules les routes qui appellent vraiment
+ * cette fonction chargent le module Firestore (plus lourd, dépendances
+ * natives), ce qui évite qu'un souci de chargement Firestore fasse
+ * planter des routes qui n'en ont pas besoin (ex: vérification de token
+ * seule dans /api/battle/questions).
+ */
+export async function getAdminDb() {
+  const { getFirestore } = await import("firebase-admin/firestore");
   return getFirestore(getAdminApp());
 }

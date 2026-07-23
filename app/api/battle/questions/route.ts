@@ -4,6 +4,9 @@ import { generateBattleQuestions } from "@/lib/groq";
 import { getFallbackQuestions } from "@/lib/battle-fallback";
 import { getFormation } from "@/lib/formations";
 
+// firebase-admin nécessite le runtime Node.js (pas Edge).
+export const runtime = "nodejs";
+
 export async function POST(req: NextRequest) {
   try {
     const { idToken, formationSlug, difficulty } = await req.json();
