@@ -4,6 +4,7 @@ export const metadata: Metadata = {
   title: "Notre mission",
   description:
     "ADN Community rend la data accessible à l'Afrique francophone. Découvre notre histoire, notre académie et l'équipe derrière ADN Academy.",
+  alternates: { canonical: "/a-propos" },
 };
 
 const TEAM = [

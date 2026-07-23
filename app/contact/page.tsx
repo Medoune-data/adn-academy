@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Contact",
   description: "Contacte ADN Academy par WhatsApp ou email pour toute question sur nos formations.",
+  alternates: { canonical: "/contact" },
 };
 
 export default function ContactPage() {
@@ -31,7 +32,7 @@ export default function ContactPage() {
           </a>
 
           <a
-            href="mailto:contact@adn-academy.com"
+            href="mailto:contact.adn.academy@gmail.com"
             className="border border-border rounded-2xl p-8 bg-surface/40 hover:border-accent/40 transition-all"
           >
             <span className="font-mono text-[10px] text-text-faint block mb-4">B1</span>

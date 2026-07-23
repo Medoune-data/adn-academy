@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Formations Excel, SQL, R",
   description:
     "Découvre les formations data d'ADN Academy : Excel pour l'analyse de données, SQL pour le business, Data Science avec R. En direct, en petit groupe.",
+  alternates: { canonical: "/formations" },
 };
 
 export default function FormationsPage() {

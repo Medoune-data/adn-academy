@@ -20,16 +20,16 @@ const COURSE_CONFIG_LIST = [
     shortName: "EXCEL PRO",
     label: "Data Analysis - Office",
     description:
-      "Les participants ayant complete ce programme ont developpe des competences pratiques " +
-      "pour nettoyer, analyser et visualiser des donnees avec Excel. Ils maitrisent la creation " +
-      "de dashboards interactifs, les formules avancees (INDEX/EQUIV, DATEVAL, NOMPROPRE) " +
-      "et l'automatisation des rapports pour la prise de decision strategique en entreprise. " +
-      "Ce programme prepare les apprenants a produire des analyses fiables et exploitables.",
+      "Les participants ayant complété ce programme ont développé des compétences pratiques " +
+      "pour nettoyer, analyser et visualiser des données avec Excel. Ils maîtrisent la création " +
+      "de dashboards interactifs, les formules avancées (INDEX/EQUIV, DATEVAL, NOMPROPRE) " +
+      "et l'automatisation des rapports pour la prise de décision stratégique en entreprise. " +
+      "Ce programme prépare les apprenants à produire des analyses fiables et exploitables.",
     skills: [
-      "Tableaux croises dynamiques",
+      "Tableaux croisés dynamiques",
       "Dashboards interactifs",
-      "Formules avancees (INDEX/EQUIV, OFFSET)",
-      "Transformation de donnees",
+      "Formules avancées (INDEX/EQUIV, OFFSET)",
+      "Transformation de données",
       "Visualisation & nettoyage de fichiers",
     ],
   },
@@ -39,17 +39,17 @@ const COURSE_CONFIG_LIST = [
     shortName: "SQL MASTER",
     label: "Data Analysis - Database",
     description:
-      "Les participants ayant complete ce programme maitrisent l'interrogation et la manipulation " +
-      "de bases de donnees relationnelles avec SQL. Ils sont competents dans l'ecriture de requetes " +
+      "Les participants ayant complété ce programme maîtrisent l'interrogation et la manipulation " +
+      "de bases de données relationnelles avec SQL. Ils sont compétents dans l'écriture de requêtes " +
       "complexes (JOIN, CTE, Window Functions), l'optimisation des performances et l'extraction " +
-      "de donnees pour l'analyse metier. Ce programme forme des profils capables d'exploiter " +
-      "des bases de donnees reelles dans un contexte professionnel.",
+      "de données pour l'analyse métier. Ce programme forme des profils capables d'exploiter " +
+      "des bases de données réelles dans un contexte professionnel.",
     skills: [
-      "Requetes complexes (JOIN, CTE, Subqueries)",
+      "Requêtes complexes (JOIN, CTE, Subqueries)",
       "Window Functions (RANK, LAG, ROW_NUMBER)",
-      "Optimisation de requetes & index",
-      "Gestion de bases de donnees relationnelles",
-      "Extraction & transformation de donnees",
+      "Optimisation de requêtes & index",
+      "Gestion de bases de données relationnelles",
+      "Extraction & transformation de données",
     ],
   },
   {
@@ -58,16 +58,16 @@ const COURSE_CONFIG_LIST = [
     shortName: "R STRATEGY",
     label: "Data Science - Strategy",
     description:
-      "Les participants ayant complete ce programme ont acquis des competences avancees en " +
-      "modelisation econometrique et en analyse predictive avec R. Ils savent preparer, analyser " +
-      "et visualiser des donnees complexes (dplyr, ggplot2) pour orienter la strategie de revenus. " +
-      "Ce programme forme des analystes capables de produire des modeles de regression, " +
-      "de segmentation et de prediction pour la prise de decision strategique.",
+      "Les participants ayant complété ce programme ont acquis des compétences avancées en " +
+      "modélisation économétrique et en analyse prédictive avec R. Ils savent préparer, analyser " +
+      "et visualiser des données complexes (dplyr, ggplot2) pour orienter la stratégie de revenus. " +
+      "Ce programme forme des analystes capables de produire des modèles de régression, " +
+      "de segmentation et de prédiction pour la prise de décision stratégique.",
     skills: [
-      "Modelisation econometrique",
-      "Analyse de regression (OLS, Logit)",
-      "Visualisation avancee (ggplot2)",
-      "Nettoyage de donnees (dplyr / tidyr)",
+      "Modélisation économétrique",
+      "Analyse de régression (OLS, Logit)",
+      "Visualisation avancée (ggplot2)",
+      "Nettoyage de données (dplyr / tidyr)",
       "Segmentation & clustering",
     ],
   },
@@ -79,7 +79,7 @@ export function getCourseConfig(courseTitle: string) {
 
 const MENTION_CONFIG: Record<string, { label: string; r: number; g: number; b: number }> = {
   Excellence: { label: "MENTION EXCELLENCE", r: 201, g: 147, b: 46 },
-  "Très Bien": { label: "MENTION TRES BIEN", r: 31, g: 122, b: 108 },
+  "Très Bien": { label: "MENTION TRÈS BIEN", r: 31, g: 122, b: 108 },
   Bien: { label: "MENTION BIEN", r: 217, g: 98, b: 43 },
   Passable: { label: "MENTION PASSABLE", r: 110, g: 98, b: 85 },
 };
@@ -102,7 +102,7 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
   const cfg = getCourseConfig(cert.courseTitle);
   const [ar, ag, ab] = cfg.accent;
   const mention = cert.mention ? MENTION_CONFIG[cert.mention] ?? MENTION_CONFIG["Bien"] : null;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.adn-academy.com";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://adn-community.vercel.app";
 
   // Fond
   doc.setFillColor(255, 255, 255);
@@ -178,7 +178,7 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
   doc.setTextColor(100, 100, 100);
-  doc.text("a complete avec succes le programme de formation", lx, y);
+  doc.text("a complété avec succès le programme de formation", lx, y);
   y += 8;
 
   const boxH = 11;
@@ -197,7 +197,7 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
 
   const metaItems: { label: string; value: string }[] = [];
   if (cert.issueDate) metaItems.push({ label: "Date :", value: cert.issueDate });
-  if (cert.duration) metaItems.push({ label: "Duree :", value: cert.duration });
+  if (cert.duration) metaItems.push({ label: "Durée :", value: cert.duration });
   if (cert.level) metaItems.push({ label: "Niveau :", value: cert.level });
 
   let mx2 = lx;
@@ -246,7 +246,7 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
   doc.setFont("helvetica", "bold");
   doc.setFontSize(6.5);
   doc.setTextColor(ar, ag, ab);
-  doc.text("A PROPOS DE CETTE FORMATION", lx, y);
+  doc.text("À PROPOS DE CETTE FORMATION", lx, y);
   y += 5;
 
   doc.setFont("helvetica", "normal");
@@ -267,7 +267,7 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
   doc.setFont("helvetica", "bold");
   doc.setFontSize(6.5);
   doc.setTextColor(ar, ag, ab);
-  doc.text("COMPETENCES VALIDEES", lx, y);
+  doc.text("COMPÉTENCES VALIDÉES", lx, y);
   y += 5;
 
   const colW = (divX - lx - 12) / 2;
@@ -334,7 +334,7 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
   doc.setFont("helvetica", "normal");
   doc.setFontSize(6.5);
   doc.setTextColor(130, 130, 130);
-  doc.text("Scannez pour verifier", rx + rw / 2, ry, { align: "center" });
+  doc.text("Scannez pour vérifier", rx + rw / 2, ry, { align: "center" });
   ry += 5;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(6.5);
@@ -372,7 +372,7 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
   doc.setFont("helvetica", "normal");
   doc.setFontSize(6.5);
   doc.setTextColor(110, 110, 110);
-  doc.text("Ecole de formation data", rx + rw / 2, sigStartY + 31, { align: "center" });
+  doc.text("École de formation data", rx + rw / 2, sigStartY + 31, { align: "center" });
   doc.text("ADN Community", rx + rw / 2, sigStartY + 36, { align: "center" });
 
   // Footer
@@ -390,7 +390,7 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
   doc.setFont("helvetica", "bold");
   doc.setFontSize(6);
   doc.setTextColor(ar, ag, ab);
-  doc.text(`Verification : ${verifyUrl.replace(/^https?:\/\//, "")}`, W / 2, H - 10, { align: "center" });
+  doc.text(`Vérification : ${verifyUrl.replace(/^https?:\/\//, "")}`, W / 2, H - 10, { align: "center" });
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(5.5);

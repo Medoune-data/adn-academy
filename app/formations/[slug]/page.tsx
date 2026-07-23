@@ -18,6 +18,9 @@ export async function generateMetadata({
   return {
     title: formation.title,
     description: formation.description,
+    alternates: {
+      canonical: `/formations/${slug}`,
+    },
     openGraph: {
       title: `${formation.title} | ADN Academy`,
       description: formation.description,
@@ -35,9 +38,37 @@ export default async function FormationDetailPage({
   if (!formation) notFound();
 
   const whatsappUrl = `https://wa.me/2250564094530?text=${encodeURIComponent(formation.whatsappMessage)}`;
+  const priceNumeric = formation.price.replace(/[^\d]/g, "") || "0";
 
   return (
     <main className="pt-40 pb-24 px-6 min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Course",
+            name: formation.title,
+            description: formation.description,
+            provider: {
+              "@type": "Organization",
+              name: "ADN Academy",
+              sameAs: "https://wa.me/2250564094530",
+            },
+            hasCourseInstance: {
+              "@type": "CourseInstance",
+              courseMode: "online",
+              courseWorkload: formation.duration,
+            },
+            offers: {
+              "@type": "Offer",
+              price: priceNumeric,
+              priceCurrency: "XOF",
+              availability: "https://schema.org/InStock",
+            },
+          }),
+        }}
+      />
       <div className="max-w-4xl mx-auto">
         <Link href="/formations" className="text-accent text-[10px] uppercase tracking-[0.2em] font-bold mb-10 inline-block hover:translate-x-[-4px] transition-transform">
           ← Toutes les formations

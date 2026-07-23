@@ -4,6 +4,7 @@ export const metadata: Metadata = {
   title: "ADN Community",
   description:
     "Rejoins ADN Community, la communauté WhatsApp gratuite pour apprendre la data en français : Excel, SQL, R.",
+  alternates: { canonical: "/communaute" },
 };
 
 export default function CommunautePage() {

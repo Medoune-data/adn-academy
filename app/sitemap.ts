@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 import { FORMATIONS } from "@/lib/formations";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.adn-academy.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://adn-community.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = ["", "/formations", "/communaute", "/a-propos", "/contact"].map((path) => ({
