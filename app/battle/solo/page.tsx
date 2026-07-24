@@ -34,6 +34,7 @@ function SoloBattle() {
   const [answers, setAnswers] = useState<AnswerRecord[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
   const [locked, setLocked] = useState(false);
+  const lockedRef = useRef(false);
   const [timeLeft, setTimeLeft] = useState(QUESTION_TIME_MS);
   const questionStartRef = useRef<number>(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -72,6 +73,7 @@ function SoloBattle() {
     setTimeLeft(QUESTION_TIME_MS);
     setSelected(null);
     setLocked(false);
+    lockedRef.current = false;
 
     timerRef.current = setInterval(() => {
       const elapsed = Date.now() - questionStartRef.current;
@@ -93,7 +95,8 @@ function SoloBattle() {
   }, [phase, current]);
 
   const handleAnswer = (index: number | null) => {
-    if (locked) return; // déjà répondu ou temps écoulé
+    if (lockedRef.current) return; // déjà répondu ou temps écoulé
+    lockedRef.current = true;
     setLocked(true);
     setSelected(index);
     if (timerRef.current) clearInterval(timerRef.current);

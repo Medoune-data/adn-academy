@@ -29,6 +29,7 @@ function HebdoBattle() {
   const [correctCount, setCorrectCount] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [locked, setLocked] = useState(false);
+  const lockedRef = useRef(false);
   const [timeLeft, setTimeLeft] = useState(QUESTION_TIME_MS);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [submitted, setSubmitted] = useState(false);
@@ -79,6 +80,7 @@ function HebdoBattle() {
     setTimeLeft(QUESTION_TIME_MS);
     setSelected(null);
     setLocked(false);
+    lockedRef.current = false;
 
     timerRef.current = setInterval(() => {
       const elapsed = Date.now() - questionStartRef.current;
@@ -100,7 +102,8 @@ function HebdoBattle() {
   }, [phase, current, questions.length]);
 
   const handleAnswer = (index: number | null) => {
-    if (locked) return;
+    if (lockedRef.current) return;
+    lockedRef.current = true;
     setLocked(true);
     setSelected(index);
     if (timerRef.current) clearInterval(timerRef.current);

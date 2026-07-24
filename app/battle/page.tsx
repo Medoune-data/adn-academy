@@ -40,7 +40,7 @@ function BattleHub() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Link
             href="/battle/solo"
             className="group border border-border rounded-3xl p-8 bg-surface hover:border-accent/40 hover:shadow-[0_16px_40px_-24px_rgba(36,30,23,0.25)] transition-all"
@@ -54,6 +54,21 @@ function BattleHub() {
               niveau de ton choix. Score, temps, explications à la fin.
             </p>
             <span className="text-[10px] uppercase tracking-widest text-accent">Jouer →</span>
+          </Link>
+
+          <Link
+            href="/battle/salle"
+            className="group border border-border rounded-3xl p-8 bg-surface hover:border-accent/40 hover:shadow-[0_16px_40px_-24px_rgba(36,30,23,0.25)] transition-all"
+          >
+            <span className="text-3xl mb-4 block">⚔️</span>
+            <h2 className="font-display italic text-2xl text-text mb-3 group-hover:text-accent transition-colors">
+              Duel & Salle privée
+            </h2>
+            <p className="text-text-dim text-sm font-light leading-relaxed mb-6">
+              Crée une salle, partage le code à tes amis, affrontez-vous en
+              direct avec un classement en temps réel.
+            </p>
+            <span className="text-[10px] uppercase tracking-widest text-accent">Créer / rejoindre →</span>
           </Link>
 
           <Link
