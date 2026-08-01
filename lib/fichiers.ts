@@ -19,8 +19,13 @@ export const FICHIERS: Record<string, Record<string, FichierRessource[]>> = {
   excel: {
     "Semaine 1": [
       {
-        nom: "Ressources de la séance 1 — Excel",
-        url: "/fichiers/excel/semaine-1-ressources.xlsx",
+        nom: "Support de cours — Semaine 1",
+        url: "/fichiers/excel/semaine-1-support-cours.pdf",
+        type: "pdf",
+      },
+      {
+        nom: "Dataset — Semaine 1",
+        url: "/fichiers/excel/semaine-1-dataset.xlsx",
         type: "excel",
       },
     ],
