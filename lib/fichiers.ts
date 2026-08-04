@@ -29,6 +29,13 @@ export const FICHIERS: Record<string, Record<string, FichierRessource[]>> = {
         type: "excel",
       },
     ],
+    "Semaine 2": [
+      {
+        nom: "Support de cours — Semaine 2",
+        url: "/fichiers/excel/semaine-2-support-cours.pdf",
+        type: "pdf",
+      },
+    ],
   },
   sql: {},
   r: {},
