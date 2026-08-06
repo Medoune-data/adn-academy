@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { collection, getDocs, query } from "firebase/firestore";
 import RequireAuth from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth-context";
 import { db } from "@/lib/firebase";
 import { getFormation } from "@/lib/formations";
 import { getFichiers } from "@/lib/fichiers";
+import { extractSemaineNumber } from "@/lib/admin-utils";
 
 interface Seance {
   id: string;
@@ -44,9 +45,13 @@ function RessourcesHub() {
     }
     const fetchSeances = async () => {
       try {
-        const q = query(collection(db, "formations", slug, "seances"), orderBy("date", "asc"));
+        const q = query(collection(db, "formations", slug, "seances"));
         const snap = await getDocs(q);
-        setSeances(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Seance)));
+        const loaded = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Seance));
+        // Tri par numéro de "Semaine", pas par la date texte libre (voir
+        // lib/admin-utils.ts pour le pourquoi).
+        loaded.sort((a, b) => extractSemaineNumber(a.semaine) - extractSemaineNumber(b.semaine));
+        setSeances(loaded);
       } catch {
         setSeances([]);
       } finally {

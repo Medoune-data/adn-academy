@@ -11,12 +11,11 @@ import {
   doc,
   onSnapshot,
   query,
-  orderBy,
 } from "firebase/firestore";
 import RequireAdmin from "@/components/RequireAdmin";
 import { db } from "@/lib/firebase";
 import { getFormation } from "@/lib/formations";
-import { extractYoutubeId } from "@/lib/admin-utils";
+import { extractYoutubeId, extractSemaineNumber } from "@/lib/admin-utils";
 import { getFichiers } from "@/lib/fichiers";
 
 interface Seance {
@@ -48,9 +47,13 @@ function AdminSeances() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const q = query(collection(db, "formations", slug, "seances"), orderBy("date", "asc"));
+    const q = query(collection(db, "formations", slug, "seances"));
     const unsub = onSnapshot(q, (snap) => {
-      setSeances(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Seance)));
+      const loaded = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Seance));
+      // Tri par numéro de "Semaine", pas par la date texte libre (voir
+      // lib/admin-utils.ts pour le pourquoi).
+      loaded.sort((a, b) => extractSemaineNumber(a.semaine) - extractSemaineNumber(b.semaine));
+      setSeances(loaded);
       setLoading(false);
     });
     return () => unsub();

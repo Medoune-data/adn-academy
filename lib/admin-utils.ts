@@ -31,3 +31,14 @@ export function guessFileType(filename: string): FichierType {
   if (["r", "rmd"].includes(ext)) return "r";
   return "pdf";
 }
+
+/**
+ * Extrait le numéro d'une séance à partir du libellé "Semaine" (ex:
+ * "Semaine 3" → 3). Utilisé pour trier les séances dans le bon ordre —
+ * le champ "date" est du texte libre saisi à la main, donc trier
+ * dessus alphabétiquement ne donne PAS l'ordre chronologique réel.
+ */
+export function extractSemaineNumber(semaine: string): number {
+  const match = semaine.match(/\d+/);
+  return match ? parseInt(match[0], 10) : 0;
+}
