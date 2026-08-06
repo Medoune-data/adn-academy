@@ -96,7 +96,10 @@ function RessourcesHub() {
     );
   }
 
-  const derniere = seances[seances.length - 1];
+  // La "dernière" séance à mettre en avant est la plus récente qui a
+  // effectivement une vidéo — pas forcément la toute dernière séance
+  // créée, qui peut encore être sans replay (ajouté après coup).
+  const derniereAvecVideo = [...seances].reverse().find((s) => s.youtubeId);
 
   return (
     <main className="pt-40 pb-24 px-6 min-h-screen">
@@ -130,20 +133,20 @@ function RessourcesHub() {
           </div>
         ) : (
           <>
-            {derniere?.youtubeId && (
+            {derniereAvecVideo && (
               <section className="mb-16">
                 <div className="flex items-center gap-3 mb-6">
                   <span className="bg-accent text-bg text-[10px] font-bold px-2 py-1 rounded font-mono uppercase tracking-wider">
                     Dernier replay
                   </span>
                   <h2 className="font-display italic text-xl text-text">
-                    {derniere.semaine} — {derniere.titre}
+                    {derniereAvecVideo.semaine} — {derniereAvecVideo.titre}
                   </h2>
                 </div>
                 <div className="aspect-video w-full rounded-2xl overflow-hidden border border-border">
                   <iframe
                     className="w-full h-full"
-                    src={`https://www.youtube.com/embed/${derniere.youtubeId}`}
+                    src={`https://www.youtube.com/embed/${derniereAvecVideo.youtubeId}`}
                     title="Rediffusion"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
@@ -167,6 +170,18 @@ function RessourcesHub() {
                       </span>
                       <h3 className="font-display italic text-lg text-text mt-2 mb-2">{s.titre}</h3>
                       <p className="text-text-dim text-sm font-light mb-6">{s.description}</p>
+
+                      {s.youtubeId && (
+                        <div className="aspect-video w-full rounded-xl overflow-hidden border border-border mb-6">
+                          <iframe
+                            className="w-full h-full"
+                            src={`https://www.youtube.com/embed/${s.youtubeId}`}
+                            title={`Rediffusion — ${s.semaine}`}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                      )}
 
                       {fichiers.length > 0 && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
