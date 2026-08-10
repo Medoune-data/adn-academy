@@ -151,17 +151,18 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
   const lx = 16;
   let y = 42;
 
+  // Police agrandie pour la lisibilité sur mobile (testé et vérifié).
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
-  doc.setTextColor(160, 160, 160);
+  doc.setFontSize(9.5);
+  doc.setTextColor(150, 150, 150);
   doc.text("CE DOCUMENT OFFICIEL ATTESTE QUE", lx, y);
-  y += 12;
+  y += 11;
 
   const nameStr = cert.studentName.toUpperCase();
   doc.setFont("times", "bold");
-  let fs = 30;
+  let fs = 32;
   doc.setFontSize(fs);
-  while (doc.getTextWidth(nameStr) > divX - lx - 8 && fs > 16) {
+  while (doc.getTextWidth(nameStr) > divX - lx - 8 && fs > 18) {
     fs -= 1;
     doc.setFontSize(fs);
   }
@@ -173,15 +174,15 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
   doc.setDrawColor(ar, ag, ab);
   doc.setLineWidth(1.5);
   doc.line(lx, y, lx + nw, y);
-  y += 8;
+  y += 7;
 
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(8.5);
-  doc.setTextColor(100, 100, 100);
+  doc.setFontSize(10.5);
+  doc.setTextColor(90, 90, 90);
   doc.text("a complété avec succès le programme de formation", lx, y);
-  y += 8;
+  y += 7;
 
-  const boxH = 11;
+  const boxH = 12;
   doc.setFillColor(ar, ag, ab);
   doc.setGState(doc.GState({ opacity: 0.07 }));
   doc.roundedRect(lx - 2, y - 3, divX - lx - 10, boxH, 2, 2, "F");
@@ -190,9 +191,9 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
   doc.setLineWidth(2.5);
   doc.line(lx - 2, y - 3, lx - 2, y + boxH - 3);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
+  doc.setFontSize(13);
   doc.setTextColor(ar, ag, ab);
-  doc.text(cert.courseTitle, lx + 4, y + 4.5);
+  doc.text(cert.courseTitle, lx + 4, y + 5.5);
   y += boxH + 4;
 
   const metaItems: { label: string; value: string }[] = [];
@@ -203,12 +204,12 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
   let mx2 = lx;
   metaItems.forEach((m, i) => {
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(7.5);
-    doc.setTextColor(130, 130, 130);
+    doc.setFontSize(9);
+    doc.setTextColor(120, 120, 120);
     doc.text(m.label, mx2, y);
     const lw = doc.getTextWidth(m.label);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
+    doc.setFontSize(10);
     doc.setTextColor(30, 30, 30);
     doc.text(m.value, mx2 + lw + 1.5, y);
     const vw = doc.getTextWidth(m.value);
@@ -216,24 +217,24 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
     if (i < metaItems.length - 1) {
       doc.setDrawColor(200, 200, 200);
       doc.setLineWidth(0.3);
-      doc.line(mx2 - 6, y - 3, mx2 - 6, y + 1);
+      doc.line(mx2 - 6, y - 3.5, mx2 - 6, y + 1.5);
     }
   });
   y += 8;
 
   if (mention) {
-    const mw = 60;
+    const mw = 72;
     doc.setFillColor(mention.r, mention.g, mention.b);
     doc.setGState(doc.GState({ opacity: 0.1 }));
-    doc.roundedRect(lx - 2, y - 3.5, mw, 8, 4, 4, "F");
+    doc.roundedRect(lx - 2, y - 3.5, mw, 8.5, 4, 4, "F");
     doc.setGState(doc.GState({ opacity: 1 }));
     doc.setFillColor(mention.r, mention.g, mention.b);
     doc.rect(lx + 1, y - 2, 3, 3, "F");
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(7.5);
+    doc.setFontSize(9);
     doc.setTextColor(mention.r, mention.g, mention.b);
-    doc.text(mention.label, lx + 7, y + 1);
-    y += 10;
+    doc.text(mention.label, lx + 7.5, y + 1);
+    y += 9;
   } else {
     y += 4;
   }
@@ -241,34 +242,34 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
   doc.setDrawColor(235, 235, 235);
   doc.setLineWidth(0.3);
   doc.line(lx, y, divX - 10, y);
-  y += 6;
+  y += 7;
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(6.5);
+  doc.setFontSize(8.5);
   doc.setTextColor(ar, ag, ab);
   doc.text("À PROPOS DE CETTE FORMATION", lx, y);
   y += 5;
 
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(8.5);
-  doc.setTextColor(70, 70, 70);
+  doc.setFontSize(9.5);
+  doc.setTextColor(60, 60, 60);
   const descLines = doc.splitTextToSize(cfg.description, divX - lx - 12);
   descLines.forEach((line: string) => {
     doc.text(line, lx, y);
-    y += 5.5;
+    y += 5.8;
   });
   y += 3;
 
   doc.setDrawColor(235, 235, 235);
   doc.setLineWidth(0.3);
   doc.line(lx, y, divX - 10, y);
-  y += 6;
+  y += 7;
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(6.5);
+  doc.setFontSize(8.5);
   doc.setTextColor(ar, ag, ab);
   doc.text("COMPÉTENCES VALIDÉES", lx, y);
-  y += 5;
+  y += 6;
 
   const colW = (divX - lx - 12) / 2;
   const half = Math.ceil(cfg.skills.length / 2);
@@ -276,35 +277,20 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
     const col = i < half ? 0 : 1;
     const row = i < half ? i : i - half;
     const sx = lx + col * colW;
-    const sy = y + row * 6;
+    const sy = y + row * 6.8;
     doc.setFillColor(ar, ag, ab);
-    doc.circle(sx + 1.2, sy - 1.2, 1, "F");
+    doc.circle(sx + 1.3, sy - 1.5, 1.1, "F");
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(7.5);
-    doc.setTextColor(40, 40, 40);
-    doc.text(skill, sx + 5, sy - 0.2);
+    doc.setFontSize(9);
+    doc.setTextColor(30, 30, 30);
+    doc.text(skill, sx + 5.5, sy - 0.2);
   });
-  y += Math.ceil(cfg.skills.length / 2) * 6 + 3;
+  y += Math.ceil(cfg.skills.length / 2) * 6.8 + 3;
 
-  if (cert.projectDescription && cert.projectDescription.trim().length > 0) {
-    doc.setDrawColor(235, 235, 235);
-    doc.setLineWidth(0.3);
-    doc.line(lx, y, divX - 10, y);
-    y += 6;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(6.5);
-    doc.setTextColor(ar, ag, ab);
-    doc.text("PROJET FINAL", lx, y);
-    y += 5;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7.5);
-    doc.setTextColor(70, 70, 70);
-    const projLines = doc.splitTextToSize(cert.projectDescription, divX - lx - 12);
-    projLines.slice(0, 4).forEach((line: string) => {
-      doc.text(line, lx, y);
-      y += 5;
-    });
-  }
+  // La section "Projet final" a été retirée pour laisser plus de place
+  // à un texte lisible sans zoomer sur mobile. Le certificat tient déjà
+  // sa hauteur assez juste — prévoir de retirer autre chose en échange
+  // si on veut la réintroduire un jour.
 
   // Colonne droite : QR + signature
   const rx = divX + 8;
@@ -330,19 +316,19 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
     console.error("QR:", e);
   }
 
-  ry += qrSize + 5;
+  ry += qrSize + 6;
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(6.5);
-  doc.setTextColor(130, 130, 130);
+  doc.setFontSize(8);
+  doc.setTextColor(120, 120, 120);
   doc.text("Scannez pour vérifier", rx + rw / 2, ry, { align: "center" });
-  ry += 5;
+  ry += 6;
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(6.5);
+  doc.setFontSize(8.5);
   doc.setTextColor(ar, ag, ab);
   doc.text("ADN Academy", rx + rw / 2, ry, { align: "center" });
 
   const sigBottomY = H - 20;
-  const sigBlockH = 36;
+  const sigBlockH = 38;
   const sigStartY = sigBottomY - sigBlockH;
 
   doc.setDrawColor(235, 235, 235);
@@ -351,29 +337,29 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
 
   const sigImg = await loadImage("/signature.png");
   if (sigImg) {
-    doc.addImage(sigImg, "PNG", rx + rw / 2 - 20, sigStartY + 3, 40, 16);
+    doc.addImage(sigImg, "PNG", rx + rw / 2 - 20, sigStartY + 4, 40, 16);
   } else {
     doc.setFont("times", "italic");
-    doc.setFontSize(16);
+    doc.setFontSize(17);
     doc.setTextColor(50, 50, 50);
     doc.setGState(doc.GState({ opacity: 0.25 }));
-    doc.text("ADN Academy", rx + rw / 2, sigStartY + 13, { align: "center" });
+    doc.text("ADN Academy", rx + rw / 2, sigStartY + 14, { align: "center" });
     doc.setGState(doc.GState({ opacity: 1 }));
   }
 
   doc.setDrawColor(ar, ag, ab);
   doc.setLineWidth(0.6);
-  doc.line(rx + 8, sigStartY + 21, rx + rw - 8, sigStartY + 21);
+  doc.line(rx + 8, sigStartY + 22, rx + rw - 8, sigStartY + 22);
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
+  doc.setFontSize(9.5);
   doc.setTextColor(20, 20, 20);
-  doc.text("ADN Academy", rx + rw / 2, sigStartY + 26, { align: "center" });
+  doc.text("ADN Academy", rx + rw / 2, sigStartY + 28, { align: "center" });
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(6.5);
-  doc.setTextColor(110, 110, 110);
-  doc.text("École de formation data", rx + rw / 2, sigStartY + 31, { align: "center" });
-  doc.text("ADN Community", rx + rw / 2, sigStartY + 36, { align: "center" });
+  doc.setFontSize(8);
+  doc.setTextColor(100, 100, 100);
+  doc.text("École de formation data", rx + rw / 2, sigStartY + 33.5, { align: "center" });
+  doc.text("ADN Community", rx + rw / 2, sigStartY + 38.5, { align: "center" });
 
   // Footer
   doc.setFillColor(248, 249, 250);
@@ -383,18 +369,18 @@ export async function generateCertificatePDF(cert: CertificateData): Promise<voi
   doc.line(16, H - 16, W - 16, H - 16);
 
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(5.5);
-  doc.setTextColor(150, 150, 150);
+  doc.setFontSize(7);
+  doc.setTextColor(140, 140, 140);
   doc.text(`ID : ${cert.id}`, 16, H - 10);
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(6);
+  doc.setFontSize(7.5);
   doc.setTextColor(ar, ag, ab);
   doc.text(`Vérification : ${verifyUrl.replace(/^https?:\/\//, "")}`, W / 2, H - 10, { align: "center" });
 
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(5.5);
-  doc.setTextColor(150, 150, 150);
+  doc.setFontSize(7);
+  doc.setTextColor(140, 140, 140);
   doc.text(`© ${new Date().getFullYear()} ADN Academy - Côte d'Ivoire`, W - 16, H - 10, { align: "right" });
 
   const safeName = cert.studentName.replace(/\s+/g, "_").toLowerCase();
