@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     } catch (err) {
       console.error("Groq indisponible, repli sur le stock local :", err);
       return NextResponse.json({
-        questions: getFallbackQuestions(formationSlug),
+        questions: getFallbackQuestions(formationSlug, 10),
         source: "fallback",
       });
     }

@@ -1,5 +1,7 @@
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+// Le modèle se règle par variable d'environnement : la prochaine fois que Groq
+// retire un modèle, il suffit de changer GROQ_MODEL (sans toucher au code).
+const GROQ_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 
 export interface BattleQuestion {
   question: string;
@@ -23,6 +25,10 @@ export async function generateBattleQuestions(
     throw new Error("GROQ_API_KEY manquant dans .env.local");
   }
 
+  // Graine aléatoire : change à chaque appel pour éviter que le modèle
+  // reproduise le même lot de questions d'une partie à l'autre.
+  const seed = Math.random().toString(36).slice(2, 8);
+
   const prompt = `Tu es un générateur de questions pour un jeu-quiz pédagogique appelé "ADN Battle", destiné à des étudiants africains francophones qui apprennent la data.
 
 Génère exactement ${count} questions à choix multiples sur la formation "${formationTitle}", de niveau "${difficulty}".
@@ -32,6 +38,8 @@ Règles :
 - Une seule bonne réponse par question (index 0 à 3).
 - Ajoute une explication courte (1-2 phrases) de la bonne réponse, utile pédagogiquement.
 - Varie les sujets à l'intérieur de la formation (ne répète pas la même notion).
+- Évite les questions les plus classiques et les plus évidentes ; propose des angles originaux (cas pratiques, pièges courants, situations réelles). Identifiant de variation : ${seed}.
+- Varie la position de la bonne réponse (ne la mets pas toujours au même index).
 - Réponds UNIQUEMENT avec un JSON valide, sans texte avant/après, sans balises markdown, au format exact suivant :
 
 {"questions":[{"question":"...","options":["...","...","...","..."],"correctIndex":0,"explanation":"..."}]}`;
@@ -52,7 +60,7 @@ Règles :
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    throw new Error(`Groq API erreur ${res.status}: ${text.slice(0, 300)}`);
+    throw new Error(`Groq API erreur ${res.status} (modèle ${GROQ_MODEL}): ${text.slice(0, 300)}`);
   }
 
   const data = await res.json();

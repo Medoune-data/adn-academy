@@ -99,6 +99,13 @@ export const FALLBACK_QUESTIONS: Record<string, BattleQuestion[]> = {
   ],
 };
 
-export function getFallbackQuestions(slug: string) {
-  return FALLBACK_QUESTIONS[slug] ?? FALLBACK_QUESTIONS.excel;
+// Renvoie les questions de repli dans un ordre aléatoire (Fisher-Yates),
+// et limitées à `count` si ce nombre est fourni.
+export function getFallbackQuestions(slug: string, count?: number): BattleQuestion[] {
+  const pool = [...(FALLBACK_QUESTIONS[slug] ?? FALLBACK_QUESTIONS.excel)];
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return typeof count === "number" ? pool.slice(0, count) : pool;
 }

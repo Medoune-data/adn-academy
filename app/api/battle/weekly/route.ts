@@ -21,7 +21,10 @@ export async function GET(req: NextRequest) {
     const ref = db.collection("battle_weekly").doc(weekId);
     const snap = await ref.get();
 
-    if (snap.exists) {
+    // Un défi généré par le repli local n'est PAS gardé en cache : on retente
+    // l'IA à la prochaine ouverture pour ne pas figer les mêmes questions
+    // toute la semaine.
+    if (snap.exists && snap.data()?.source !== "fallback") {
       return NextResponse.json({ weekId, ...snap.data() });
     }
 
