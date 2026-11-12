@@ -25,6 +25,7 @@ import {
   nextExpiry,
   planLabel,
 } from "@/lib/membership";
+import { CELLS, getCell } from "@/lib/cells";
 
 interface Student {
   id: string;
@@ -37,6 +38,7 @@ interface Student {
   cardNumber?: string;
   plan?: number;
   paidUntil?: unknown;
+  cell?: string;
 }
 
 function generatePassword() {
@@ -44,7 +46,7 @@ function generatePassword() {
   return Array.from({ length: 10 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
 }
 
-const EMPTY_FORM = { name: "", whatsapp: "", email: "", password: generatePassword() };
+const EMPTY_FORM = { name: "", whatsapp: "", email: "", cell: CELLS[0].id, password: generatePassword() };
 
 function whatsappLink(raw: string | undefined, text: string) {
   const digits = (raw ?? "").replace(/\D/g, "");
@@ -98,6 +100,7 @@ function AdminEleves() {
         name: form.name,
         whatsapp: form.whatsapp,
         email: form.email,
+        cell: form.cell,
         enrolledFormations: [],
         createdAt: serverTimestamp(),
       });
@@ -129,6 +132,11 @@ function AdminEleves() {
   // carte au premier paiement, et garde une trace dans "payments".
   // Tout est écrit dans un seul batch : soit tout passe, soit rien.
   const recordPayment = async (s: Student, amount: number) => {
+    const cell = getCell(s.cell);
+    if (!cell) {
+      alert("Choisis d'abord la cellule de cet élève.");
+      return;
+    }
     setPayingId(s.id);
     try {
       const expiry = Timestamp.fromDate(nextExpiry(s.paidUntil));
@@ -139,19 +147,18 @@ function AdminEleves() {
       if (!cardId) {
         const cardRef = doc(collection(db, "cards"));
         cardId = cardRef.id;
-        cardNumber = generateCardNumber();
+        cardNumber = generateCardNumber(cell.code);
         batch.set(cardRef, {
-          studentId: s.id,
           cardNumber,
+          cell: cell.id,
           name: s.name ?? "",
-          plan: amount,
           paidUntil: expiry,
           createdAt: serverTimestamp(),
         });
       } else {
         batch.update(doc(db, "cards", cardId), {
+          cell: cell.id,
           name: s.name ?? "",
-          plan: amount,
           paidUntil: expiry,
         });
       }
@@ -179,7 +186,8 @@ function AdminEleves() {
   };
 
   const downloadCard = async (s: Student) => {
-    if (!s.cardId || !s.cardNumber) return;
+    const cell = getCell(s.cell);
+    if (!s.cardId || !s.cardNumber || !cell) return;
     setCardGenId(s.id);
     try {
       const { generateMemberCardPNG } = await import("@/lib/generateMemberCard");
@@ -192,7 +200,7 @@ function AdminEleves() {
         name: s.name || "Membre ADN",
         cardNumber: s.cardNumber,
         cardId: s.cardId,
-        plan: s.plan,
+        cell,
         since: since.charAt(0).toUpperCase() + since.slice(1),
       });
     } catch (e) {
@@ -200,6 +208,18 @@ function AdminEleves() {
       console.error(e);
     } finally {
       setCardGenId(null);
+    }
+  };
+
+  const changeCell = async (s: Student, cellId: string) => {
+    try {
+      const batch = writeBatch(db);
+      batch.update(doc(db, "students", s.id), { cell: cellId });
+      if (s.cardId) batch.update(doc(db, "cards", s.cardId), { cell: cellId });
+      await batch.commit();
+    } catch (e) {
+      alert("Erreur lors du changement de cellule.");
+      console.error(e);
     }
   };
 
@@ -250,6 +270,21 @@ function AdminEleves() {
                 className="w-full bg-bg border border-border rounded-lg p-3 text-text text-sm outline-none focus:border-accent transition-colors"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="text-[10px] uppercase tracking-widest text-text-faint font-mono mb-2 block">
+              Cellule
+            </label>
+            <select
+              value={form.cell}
+              onChange={(e) => setForm({ ...form, cell: e.target.value })}
+              className="w-full bg-bg border border-border rounded-lg p-3 text-text text-sm outline-none focus:border-accent transition-colors cursor-pointer"
+            >
+              {CELLS.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
           </div>
 
           <div>
@@ -396,17 +431,29 @@ function AdminEleves() {
 
                   <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
                     <select
-                      value={chosen}
-                      onChange={(e) => setPlanChoice({ ...planChoice, [s.id]: Number(e.target.value) })}
+                      value={s.cell ?? ""}
+                      onChange={(e) => changeCell(s, e.target.value)}
                       className="bg-bg border border-border rounded-lg px-3 py-2 text-text text-xs outline-none focus:border-accent cursor-pointer"
                     >
-                      {PLANS.map((p) => (
-                        <option key={p.amount} value={p.amount}>{p.label}</option>
+                      {!s.cell && <option value="">Cellule ?</option>}
+                      {CELLS.map((c) => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
                       ))}
                     </select>
+                    {PLANS.length > 1 && (
+                      <select
+                        value={chosen}
+                        onChange={(e) => setPlanChoice({ ...planChoice, [s.id]: Number(e.target.value) })}
+                        className="bg-bg border border-border rounded-lg px-3 py-2 text-text text-xs outline-none focus:border-accent cursor-pointer"
+                      >
+                        {PLANS.map((p) => (
+                          <option key={p.amount} value={p.amount}>{p.label}</option>
+                        ))}
+                      </select>
+                    )}
                     <button
                       onClick={() => recordPayment(s, chosen)}
-                      disabled={payingId === s.id}
+                      disabled={payingId === s.id || !s.cell}
                       className="text-[10px] uppercase tracking-widest font-bold bg-accent text-bg px-4 py-2.5 rounded-full hover:brightness-105 transition-all disabled:opacity-50"
                     >
                       {payingId === s.id ? "Enregistrement..." : "Enregistrer un paiement (+30 j)"}

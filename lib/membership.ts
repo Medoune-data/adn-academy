@@ -1,9 +1,10 @@
 import type { Timestamp } from "firebase/firestore";
 
-export const PLANS = [
+// Une seule formule au lancement. Pour en ajouter une plus tard, ajoute
+// simplement une ligne ici : le choix de formule réapparaît tout seul.
+export const PLANS: readonly { amount: number; label: string }[] = [
   { amount: 1000, label: "Membre — 1 000 F" },
-  { amount: 1500, label: "Membre+ — 1 500 F" },
-] as const;
+];
 
 export const PERIOD_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -41,8 +42,8 @@ export function formatDate(v: unknown): string {
     : "—";
 }
 
-export function generateCardNumber() {
+export function generateCardNumber(cellCode: string) {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   const rand = Array.from({ length: 5 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
-  return `ADN-${new Date().getFullYear()}-${rand}`;
+  return `ADN-${cellCode}-${new Date().getFullYear()}-${rand}`;
 }

@@ -6,10 +6,12 @@ import Link from "next/link";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { daysLeft, formatDate } from "@/lib/membership";
+import { getCell } from "@/lib/cells";
 
 interface Card {
   name: string;
   cardNumber: string;
+  cell?: string;
   paidUntil?: unknown;
 }
 
@@ -58,6 +60,7 @@ export default function VerifyCardPage() {
 
   const left = daysLeft(card.paidUntil);
   const active = left !== null && left > 0;
+  const cell = getCell(card.cell);
 
   return (
     <main className="pt-40 pb-24 px-6 min-h-screen">
@@ -72,7 +75,10 @@ export default function VerifyCardPage() {
           {active ? "Membre actif" : "Abonnement expiré"}
         </span>
         <h1 className="font-display text-3xl text-text mb-2 uppercase tracking-tight">{card.name}</h1>
-        <p className="font-mono text-sm text-text-dim mb-6">{card.cardNumber}</p>
+        <p className="font-mono text-sm text-text-dim mb-2">{card.cardNumber}</p>
+        {cell && (
+          <p className="text-text-dim text-sm font-light mb-6">Cellule de {cell.name}</p>
+        )}
         <p className="text-text-faint text-xs font-mono">
           {active ? `Valide jusqu'au ${formatDate(card.paidUntil)}` : `Expiré le ${formatDate(card.paidUntil)}`}
         </p>
