@@ -2,12 +2,29 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { collection, onSnapshot, doc, updateDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  doc,
+  updateDoc,
+  setDoc,
+  serverTimestamp,
+  writeBatch,
+  Timestamp,
+} from "firebase/firestore";
 import { createUserWithEmailAndPassword, updateProfile, signOut } from "firebase/auth";
 import RequireAdmin from "@/components/RequireAdmin";
 import { db } from "@/lib/firebase";
 import { getSecondaryAuth } from "@/lib/firebase-secondary";
 import { FORMATIONS } from "@/lib/formations";
+import {
+  PLANS,
+  daysLeft,
+  formatDate,
+  generateCardNumber,
+  nextExpiry,
+  planLabel,
+} from "@/lib/membership";
 
 interface Student {
   id: string;
@@ -15,6 +32,11 @@ interface Student {
   email?: string;
   whatsapp?: string;
   enrolledFormations?: string[];
+  createdAt?: unknown;
+  cardId?: string;
+  cardNumber?: string;
+  plan?: number;
+  paidUntil?: unknown;
 }
 
 function generatePassword() {
@@ -23,6 +45,13 @@ function generatePassword() {
 }
 
 const EMPTY_FORM = { name: "", whatsapp: "", email: "", password: generatePassword() };
+
+function whatsappLink(raw: string | undefined, text: string) {
+  const digits = (raw ?? "").replace(/\D/g, "");
+  if (!digits) return null;
+  const full = digits.startsWith("225") ? digits : `225${digits}`;
+  return `https://wa.me/${full}?text=${encodeURIComponent(text)}`;
+}
 
 function AdminEleves() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -33,6 +62,10 @@ function AdminEleves() {
   const [creating, setCreating] = useState(false);
   const [created, setCreated] = useState<{ email: string; password: string } | null>(null);
   const [copied, setCopied] = useState(false);
+
+  const [planChoice, setPlanChoice] = useState<Record<string, number>>({});
+  const [payingId, setPayingId] = useState<string | null>(null);
+  const [cardGenId, setCardGenId] = useState<string | null>(null);
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "students"), (snap) => {
@@ -59,8 +92,6 @@ function AdminEleves() {
       const cred = await createUserWithEmailAndPassword(secondaryAuth, form.email, form.password);
       await updateProfile(cred.user, { displayName: form.name });
       const newUid = cred.user.uid;
-      // On déconnecte immédiatement la session secondaire — l'admin
-      // reste connecté sur l'app principale pendant tout ce temps.
       await signOut(secondaryAuth);
 
       await setDoc(doc(db, "students", newUid), {
@@ -94,8 +125,86 @@ function AdminEleves() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Enregistre un paiement : prolonge l'abonnement de 30 jours, crée la
+  // carte au premier paiement, et garde une trace dans "payments".
+  // Tout est écrit dans un seul batch : soit tout passe, soit rien.
+  const recordPayment = async (s: Student, amount: number) => {
+    setPayingId(s.id);
+    try {
+      const expiry = Timestamp.fromDate(nextExpiry(s.paidUntil));
+      const batch = writeBatch(db);
+
+      let cardId = s.cardId;
+      let cardNumber = s.cardNumber;
+      if (!cardId) {
+        const cardRef = doc(collection(db, "cards"));
+        cardId = cardRef.id;
+        cardNumber = generateCardNumber();
+        batch.set(cardRef, {
+          studentId: s.id,
+          cardNumber,
+          name: s.name ?? "",
+          plan: amount,
+          paidUntil: expiry,
+          createdAt: serverTimestamp(),
+        });
+      } else {
+        batch.update(doc(db, "cards", cardId), {
+          name: s.name ?? "",
+          plan: amount,
+          paidUntil: expiry,
+        });
+      }
+
+      batch.update(doc(db, "students", s.id), {
+        cardId,
+        cardNumber,
+        plan: amount,
+        paidUntil: expiry,
+      });
+      batch.set(doc(collection(db, "payments")), {
+        studentId: s.id,
+        amount,
+        paidAt: serverTimestamp(),
+        coversUntil: expiry,
+      });
+
+      await batch.commit();
+    } catch (e) {
+      alert("Erreur lors de l'enregistrement du paiement.");
+      console.error(e);
+    } finally {
+      setPayingId(null);
+    }
+  };
+
+  const downloadCard = async (s: Student) => {
+    if (!s.cardId || !s.cardNumber) return;
+    setCardGenId(s.id);
+    try {
+      const { generateMemberCardPNG } = await import("@/lib/generateMemberCard");
+      const created = s.createdAt as { toDate?: () => Date } | undefined;
+      const since = (created?.toDate ? created.toDate() : new Date()).toLocaleDateString("fr-FR", {
+        month: "long",
+        year: "numeric",
+      });
+      await generateMemberCardPNG({
+        name: s.name || "Membre ADN",
+        cardNumber: s.cardNumber,
+        cardId: s.cardId,
+        plan: s.plan,
+        since: since.charAt(0).toUpperCase() + since.slice(1),
+      });
+    } catch (e) {
+      alert("Erreur lors de la génération de la carte.");
+      console.error(e);
+    } finally {
+      setCardGenId(null);
+    }
+  };
+
   const filtered = students.filter((s) =>
-    `${s.name ?? ""} ${s.email ?? ""}`.toLowerCase().includes(search.toLowerCase())
+    `${s.name ?? ""} ${s.email ?? ""} ${s.cardNumber ?? ""}`.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -205,11 +314,11 @@ function AdminEleves() {
           </div>
         )}
 
-        {/* LISTE + ACCÈS */}
+        {/* LISTE + ACCÈS + ABONNEMENT */}
         <p className="cell-label mb-4">Comptes existants</p>
         <input
           type="text"
-          placeholder="Rechercher un élève (nom ou email)"
+          placeholder="Rechercher (nom, email ou n° de carte)"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full bg-surface border border-border rounded-lg p-3.5 text-text text-sm outline-none focus:border-accent transition-colors mb-8"
@@ -221,34 +330,110 @@ function AdminEleves() {
           <p className="text-text-dim font-light">Aucun élève trouvé.</p>
         ) : (
           <div className="space-y-4">
-            {filtered.map((s) => (
-              <div key={s.id} className="border border-border rounded-2xl p-6 bg-surface">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
-                  <div>
-                    <p className="text-text font-medium">{s.name || "Sans nom"}</p>
-                    <p className="text-text-faint text-xs font-mono">{s.email}{s.whatsapp ? ` · ${s.whatsapp}` : ""}</p>
+            {filtered.map((s) => {
+              const left = daysLeft(s.paidUntil);
+              const expired = left !== null && left <= 0;
+              const soon = left !== null && left > 0 && left <= 5;
+              const chosen = planChoice[s.id] ?? s.plan ?? PLANS[0].amount;
+              const reminder = whatsappLink(
+                s.whatsapp,
+                `Bonjour ${s.name ?? ""}, ton abonnement ADN ${
+                  expired ? "a expiré" : "arrive à échéance"
+                } le ${formatDate(s.paidUntil)}. Pour continuer à suivre les formations, pense à renouveler (${chosen.toLocaleString("fr-FR")} F).`
+              );
+
+              return (
+                <div key={s.id} className="border border-border rounded-2xl p-6 bg-surface">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+                    <div>
+                      <p className="text-text font-medium">{s.name || "Sans nom"}</p>
+                      <p className="text-text-faint text-xs font-mono">
+                        {s.email}{s.whatsapp ? ` · ${s.whatsapp}` : ""}
+                      </p>
+                    </div>
+                    <div className="text-left md:text-right">
+                      {left === null ? (
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-text-faint">
+                          Aucun paiement enregistré
+                        </span>
+                      ) : (
+                        <span
+                          className={`text-[10px] font-mono uppercase tracking-widest font-bold ${
+                            expired ? "text-red-500" : soon ? "text-amber" : "text-accent"
+                          }`}
+                        >
+                          {expired
+                            ? `Expiré le ${formatDate(s.paidUntil)}`
+                            : `Actif jusqu'au ${formatDate(s.paidUntil)} (${left} j)`}
+                        </span>
+                      )}
+                      {s.cardNumber && (
+                        <p className="text-text-faint text-[10px] font-mono mt-1">
+                          {s.cardNumber} · {planLabel(s.plan)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mb-5">
+                    {FORMATIONS.map((f) => {
+                      const active = s.enrolledFormations?.includes(f.slug);
+                      return (
+                        <button
+                          key={f.slug}
+                          onClick={() => toggleFormation(s, f.slug)}
+                          className={`text-[10px] font-mono uppercase tracking-widest px-4 py-2 rounded-full border transition-all ${
+                            active
+                              ? "bg-accent text-bg border-accent"
+                              : "border-border-strong text-text-dim hover:border-accent/50"
+                          }`}
+                        >
+                          {active ? "✓ " : ""}{f.title.split(" ")[0]}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
+                    <select
+                      value={chosen}
+                      onChange={(e) => setPlanChoice({ ...planChoice, [s.id]: Number(e.target.value) })}
+                      className="bg-bg border border-border rounded-lg px-3 py-2 text-text text-xs outline-none focus:border-accent cursor-pointer"
+                    >
+                      {PLANS.map((p) => (
+                        <option key={p.amount} value={p.amount}>{p.label}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => recordPayment(s, chosen)}
+                      disabled={payingId === s.id}
+                      className="text-[10px] uppercase tracking-widest font-bold bg-accent text-bg px-4 py-2.5 rounded-full hover:brightness-105 transition-all disabled:opacity-50"
+                    >
+                      {payingId === s.id ? "Enregistrement..." : "Enregistrer un paiement (+30 j)"}
+                    </button>
+                    {s.cardId && (
+                      <button
+                        onClick={() => downloadCard(s)}
+                        disabled={cardGenId === s.id}
+                        className="text-[10px] uppercase tracking-widest font-bold border border-accent/30 text-accent px-4 py-2.5 rounded-full hover:bg-accent hover:text-bg transition-all disabled:opacity-50"
+                      >
+                        {cardGenId === s.id ? "Génération..." : "↓ Carte"}
+                      </button>
+                    )}
+                    {(expired || soon) && reminder && (
+                      <a
+                        href={reminder}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] uppercase tracking-widest font-bold text-text-dim hover:text-accent transition-colors"
+                      >
+                        Rappel WhatsApp
+                      </a>
+                    )}
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {FORMATIONS.map((f) => {
-                    const active = s.enrolledFormations?.includes(f.slug);
-                    return (
-                      <button
-                        key={f.slug}
-                        onClick={() => toggleFormation(s, f.slug)}
-                        className={`text-[10px] font-mono uppercase tracking-widest px-4 py-2 rounded-full border transition-all ${
-                          active
-                            ? "bg-accent text-bg border-accent"
-                            : "border-border-strong text-text-dim hover:border-accent/50"
-                        }`}
-                      >
-                        {active ? "✓ " : ""}{f.title.split(" ")[0]}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
