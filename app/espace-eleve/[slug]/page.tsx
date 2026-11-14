@@ -10,6 +10,7 @@ import { db } from "@/lib/firebase";
 import { getFormation } from "@/lib/formations";
 import { getFichiers } from "@/lib/fichiers";
 import { extractSemaineNumber } from "@/lib/admin-utils";
+import { formatDate, membershipStatus } from "@/lib/membership";
 
 interface Seance {
   id: string;
@@ -35,11 +36,13 @@ function RessourcesHub() {
 
   const [seances, setSeances] = useState<Seance[]>([]);
   const [loading, setLoading] = useState(true);
+  const [denied, setDenied] = useState(false);
 
   const isEnrolled = !!profile?.enrolledFormations?.includes(slug);
+  const expired = membershipStatus(profile?.paidUntil) === "expired";
 
   useEffect(() => {
-    if (!isEnrolled) {
+    if (!isEnrolled || expired) {
       setLoading(false);
       return;
     }
@@ -52,14 +55,17 @@ function RessourcesHub() {
         // lib/admin-utils.ts pour le pourquoi).
         loaded.sort((a, b) => extractSemaineNumber(a.semaine) - extractSemaineNumber(b.semaine));
         setSeances(loaded);
-      } catch {
+      } catch (e) {
         setSeances([]);
+        // Refus de Firestore (abonnement expiré côté serveur, par exemple) :
+        // on l'affiche clairement au lieu de dire "aucune séance publiée".
+        if ((e as { code?: string })?.code === "permission-denied") setDenied(true);
       } finally {
         setLoading(false);
       }
     };
     fetchSeances();
-  }, [slug, isEnrolled]);
+  }, [slug, isEnrolled, expired]);
 
   if (!formation) {
     return (
@@ -87,10 +93,49 @@ function RessourcesHub() {
             )}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block bg-accent text-bg font-mono text-xs uppercase tracking-[0.2em] font-bold px-6 py-3.5 rounded-md hover:brightness-110 transition-all"
+            className="inline-block bg-accent text-bg font-mono text-xs uppercase tracking-[0.2em] font-bold px-6 py-3.5 rounded-full hover:brightness-110 transition-all"
           >
             Activer mon accès →
           </a>
+        </div>
+      </main>
+    );
+  }
+
+  if (expired || denied) {
+    const renewUrl = `https://wa.me/2250564094530?text=${encodeURIComponent(
+      `Bonjour, je souhaite renouveler mon abonnement ADN. Carte n° ${profile?.cardNumber ?? ""}`
+    )}`;
+    return (
+      <main className="pt-40 pb-24 px-6 min-h-screen">
+        <div className="max-w-2xl mx-auto text-center border border-border rounded-2xl p-12 bg-surface/40">
+          <p className="cell-label mb-4 justify-center flex">Abonnement</p>
+          <h1 className="font-display italic text-2xl md:text-3xl text-text mb-4">
+            {expired ? "Ton abonnement a expiré" : "Accès momentanément suspendu"}
+          </h1>
+          <p className="text-text-dim font-light leading-relaxed mb-8">
+            {expired
+              ? `Tes séances de « ${formation.title} » sont en pause${
+                  profile?.paidUntil ? ` depuis le ${formatDate(profile.paidUntil)}` : ""
+                }. Renouvelle ton abonnement ADN pour retrouver replays et fichiers.`
+              : `Ton accès à « ${formation.title} » est suspendu. Contacte l'équipe pour le réactiver.`}
+          </p>
+          <div className="flex flex-col items-center gap-4">
+            <a
+              href={renewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-accent text-bg font-mono text-xs uppercase tracking-[0.2em] font-bold px-6 py-3.5 rounded-full hover:brightness-110 transition-all"
+            >
+              Renouveler →
+            </a>
+            <Link
+              href="/espace-eleve"
+              className="text-[10px] uppercase tracking-widest text-text-dim hover:text-text transition-colors"
+            >
+              ← Retour à mon espace
+            </Link>
+          </div>
         </div>
       </main>
     );

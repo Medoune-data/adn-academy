@@ -38,10 +38,10 @@ export default async function FormationDetailPage({
   if (!formation) notFound();
 
   const whatsappUrl = `https://wa.me/2250564094530?text=${encodeURIComponent(formation.whatsappMessage)}`;
-  const priceNumeric = formation.price.replace(/[^\d]/g, "") || "0";
 
   return (
     <main className="pt-40 pb-24 px-6 min-h-screen">
+      {/* Données structurées : volontairement sans "offers", le tarif n'est plus affiché sur le site */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -60,21 +60,18 @@ export default async function FormationDetailPage({
               courseMode: "online",
               courseWorkload: formation.duration,
             },
-            offers: {
-              "@type": "Offer",
-              price: priceNumeric,
-              priceCurrency: "XOF",
-              availability: "https://schema.org/InStock",
-            },
           }),
         }}
       />
       <div className="max-w-4xl mx-auto">
-        <Link href="/formations" className="text-accent text-[10px] uppercase tracking-[0.2em] font-bold mb-10 inline-block hover:translate-x-[-4px] transition-transform">
+        <Link
+          href="/formations"
+          className="text-accent text-[10px] uppercase tracking-[0.2em] font-bold mb-10 inline-block hover:translate-x-[-4px] transition-transform"
+        >
           ← Toutes les formations
         </Link>
 
-        <span className="font-mono text-[10px] text-text-faint">{formation.cellRef}</span>
+        <span className="font-mono text-[11px] text-text-faint">{formation.cellRef}</span>
         <h1 className="font-display italic text-4xl md:text-6xl text-text mt-3 mb-5 leading-tight">
           {formation.title}
         </h1>
@@ -103,28 +100,29 @@ export default async function FormationDetailPage({
           </div>
 
           <aside className="border border-border rounded-2xl p-8 bg-surface/50 h-fit space-y-6">
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between gap-4 text-sm">
               <span className="text-text-faint font-mono text-[10px] uppercase tracking-widest">Durée</span>
               <span className="text-text">{formation.duration}</span>
             </div>
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between gap-4 text-sm">
               <span className="text-text-faint font-mono text-[10px] uppercase tracking-widest">Niveau</span>
               <span className="text-text">{formation.level}</span>
             </div>
-            <div className="flex justify-between text-sm border-t border-border pt-6">
-              <span className="text-text-faint font-mono text-[10px] uppercase tracking-widest">Tarif</span>
-              <span className="text-text font-medium text-lg">{formation.price}</span>
+            <div className="flex justify-between gap-4 text-sm">
+              <span className="text-text-faint font-mono text-[10px] uppercase tracking-widest">Format</span>
+              <span className="text-text text-right">En direct, petit groupe</span>
             </div>
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="block text-center bg-accent text-bg font-mono text-xs uppercase tracking-[0.2em] font-bold px-6 py-4 rounded-md hover:brightness-110 transition-all"
+              className="block text-center bg-accent text-bg font-mono text-xs uppercase tracking-[0.2em] font-bold px-6 py-4 rounded-full hover:brightness-110 transition-all"
             >
               S&apos;inscrire via WhatsApp →
             </a>
             <p className="text-text-faint text-[11px] font-light text-center leading-relaxed">
-              Paiement par Mobile Money, confirmé directement avec l&apos;équipe ADN.
+              Les modalités d&apos;inscription te sont confirmées directement par
+              l&apos;équipe ADN sur WhatsApp.
             </p>
           </aside>
         </div>

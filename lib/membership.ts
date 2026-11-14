@@ -47,3 +47,20 @@ export function generateCardNumber(cellCode: string) {
   const rand = Array.from({ length: 5 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
   return `ADN-${cellCode}-${new Date().getFullYear()}-${rand}`;
 }
+
+export type MembershipStatus = "none" | "active" | "soon" | "expired";
+
+/** none = aucun paiement enregistré, soon = expire dans 5 jours ou moins. */
+export function membershipStatus(paidUntil: unknown): MembershipStatus {
+  const left = daysLeft(paidUntil);
+  if (left === null) return "none";
+  if (left <= 0) return "expired";
+  return left <= 5 ? "soon" : "active";
+}
+
+/** "Novembre 2026" à partir de la date de création du compte. */
+export function memberSince(createdAt: unknown): string {
+  const d = toDate(createdAt) ?? new Date();
+  const s = d.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}

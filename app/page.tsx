@@ -2,191 +2,177 @@ import Link from "next/link";
 import { FORMATIONS } from "@/lib/formations";
 import Reveal from "@/components/Reveal";
 
+const WHATSAPP_JOIN =
+  "https://wa.me/2250564094530?text=Bonjour%2C%20je%20souhaite%20rejoindre%20ADN%20Community";
+
 export default function HomePage() {
   return (
     <main>
       {/* HERO */}
-      <section className="relative pt-44 pb-28 px-6 overflow-hidden">
-        <div
-          className="blob w-[420px] h-[420px] -top-32 -left-32"
-          style={{ background: "var(--adn-accent)" }}
-        />
-        <div
-          className="blob w-[360px] h-[360px] top-10 right-[-120px]"
-          style={{ background: "var(--adn-teal)", animationDelay: "3s" }}
-        />
-
-        <div className="relative max-w-5xl mx-auto">
+      <section className="pt-44 pb-24 px-6">
+        <div className="max-w-5xl mx-auto">
           <Reveal>
-            <div className="flex items-center gap-3 mb-8 font-mono text-[11px] text-text-dim">
-              <span className="w-2 h-2 rounded-full bg-accent" />
-              <span>ADN Community — Excel · SQL · R · Afrique francophone</span>
+            {/* Barre de formule : le clin d'œil Excel de la marque */}
+            <div className="inline-flex items-stretch border border-border rounded-md overflow-hidden mb-10 font-mono text-[11px]">
+              <span className="px-3 py-2 bg-surface text-accent font-bold italic border-r border-border">
+                fx
+              </span>
+              <span className="px-4 py-2 text-text-dim">=APPRENDRE(Excel; SQL; R)</span>
             </div>
           </Reveal>
 
           <Reveal delay={80}>
             <h1 className="font-display text-5xl md:text-7xl leading-[1.05] text-text mb-8 max-w-3xl">
-              Une communauté qui apprend{" "}
-              <span className="italic text-accent">la data ensemble.</span>
+              Apprendre la data sur des{" "}
+              <span className="italic text-accent">cas d&apos;entreprise réels.</span>
             </h1>
           </Reveal>
 
           <Reveal delay={160}>
             <p className="text-text-dim text-lg font-light leading-relaxed max-w-xl mb-12">
-              ADN Community rassemble des passionnés de data en Afrique francophone —
-              gratuitement sur WhatsApp. Pour ceux qui veulent aller plus loin,
-              notre académie, <strong className="text-text font-medium">ADN Academy</strong>,
-              forme aux métiers de la donnée : Excel, SQL, R.
+              ADN est une communauté de passionnés de data en Afrique francophone.
+              Le groupe WhatsApp en est le point de départ ; notre académie,{" "}
+              <strong className="text-text font-medium">ADN Academy</strong>, forme à
+              Excel, SQL et R en direct, avec un projet final et un certificat
+              vérifiable en ligne.
             </p>
           </Reveal>
 
           <Reveal delay={240}>
             <div className="flex flex-wrap gap-4">
               <a
-                href="https://wa.me/2250564094530?text=Bonjour%2C%20je%20souhaite%20rejoindre%20ADN%20Community"
+                href={WHATSAPP_JOIN}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-accent text-bg font-mono text-xs uppercase tracking-[0.2em] font-bold px-7 py-4 rounded-full hover:brightness-105 shadow-[0_8px_24px_-8px_rgba(217,98,43,0.5)] transition-all"
               >
-                Rejoindre la communauté →
+                Rejoindre le groupe →
               </a>
               <Link
                 href="/formations"
                 className="border border-border-strong text-text font-mono text-xs uppercase tracking-[0.2em] font-bold px-7 py-4 rounded-full hover:border-accent/60 hover:bg-surface transition-all"
               >
-                Découvrir ADN Academy
+                Voir les formations
               </Link>
             </div>
           </Reveal>
         </div>
       </section>
 
-      {/* STATS */}
-      <section className="border-y border-border bg-surface/60">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4">
-          {[
-            { label: "Communauté", value: "ADN Community", sub: "gratuite, WhatsApp" },
-            { label: "Académie", value: "3 formations", sub: "Excel · SQL · R" },
-            { label: "Format", value: "100% en direct", sub: "petits groupes" },
-            { label: "Certification", value: "Vérifiable", sub: "en ligne" },
-          ].map((s, i) => (
-            <Reveal key={s.label} delay={i * 60}>
-              <div className="border-r border-border last:border-r-0 p-8 text-center h-full">
-                <p className="font-display italic text-lg md:text-xl text-text mb-1">{s.value}</p>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-accent font-mono font-bold mb-1">{s.label}</p>
-                <p className="text-[11px] text-text-faint">{s.sub}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      {/* NOTRE HISTOIRE — story arc: community -> academy -> certification */}
-      <section className="max-w-5xl mx-auto px-6 py-28">
-        <Reveal>
-          <p className="cell-label mb-4">Notre histoire</p>
-          <h2 className="font-display italic text-3xl md:text-4xl text-text mb-16 max-w-2xl">
-            D&apos;un groupe WhatsApp à une véritable académie.
-          </h2>
-        </Reveal>
-
-        <div className="relative">
-          <div className="hidden md:block absolute left-[27px] top-4 bottom-4 w-px story-dots" />
-          <div className="space-y-14">
-            {[
-              {
-                num: "01",
-                title: "ADN Community",
-                text: "Tout commence par l'entraide : un groupe WhatsApp gratuit où l'on partage fichiers, questions et solutions autour de la data.",
-                link: { href: "/communaute", label: "Voir la communauté" },
-              },
-              {
-                num: "02",
-                title: "ADN Academy",
-                text: "Pour ceux qui veulent structurer leur apprentissage, des formations en direct — Excel, SQL, R — avec projets réels et suivi personnalisé.",
-                link: { href: "/formations", label: "Voir les formations" },
-              },
-              {
-                num: "03",
-                title: "Certification",
-                text: "Chaque formation se termine par un projet concret et un certificat vérifiable en ligne, à partager avec confiance.",
-                link: null,
-              },
-            ].map((step, i) => (
-              <Reveal key={step.num} delay={i * 100}>
-                <div className="flex gap-6 md:gap-10">
-                  <div className="flex-shrink-0 w-14 h-14 rounded-full bg-accent-dim border border-accent/30 flex items-center justify-center font-mono text-accent font-bold text-sm z-10 bg-bg">
-                    {step.num}
-                  </div>
-                  <div className="pt-2">
-                    <h3 className="font-display italic text-2xl text-text mb-3">{step.title}</h3>
-                    <p className="text-text-dim font-light leading-relaxed max-w-xl mb-3">{step.text}</p>
-                    {step.link && (
-                      <Link href={step.link.href} className="text-xs uppercase tracking-[0.2em] font-bold text-accent hover:underline">
-                        {step.link.label} →
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FORMATIONS PREVIEW */}
-      <section className="border-t border-border bg-surface/60 py-24 px-6">
+      {/* FORMATIONS — présentées comme une feuille de calcul */}
+      <section className="border-y border-border bg-surface/60 py-24 px-6">
         <div className="max-w-5xl mx-auto">
           <Reveal>
             <p className="cell-label mb-4">ADN Academy</p>
-            <h2 className="font-display italic text-3xl md:text-4xl text-text mb-14">
-              Trois parcours, un seul objectif : la maîtrise.
+            <h2 className="font-display italic text-3xl md:text-4xl text-text mb-4 max-w-2xl">
+              Excel, SQL et R, en direct.
             </h2>
+            <p className="text-text-dim font-light leading-relaxed max-w-xl mb-12">
+              Chaque formation suit un même jeu de données d&apos;entreprise du
+              début à la fin, avec des séances en direct en petit groupe.
+            </p>
           </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {FORMATIONS.map((f, i) => (
-              <Reveal key={f.slug} delay={i * 90}>
+
+          <Reveal delay={80}>
+            <div className="border border-border rounded-xl overflow-hidden bg-bg">
+              <div className="hidden md:grid grid-cols-[4rem_1fr_10rem_9rem_3rem] bg-surface border-b border-border font-mono text-[10px] uppercase tracking-widest text-text-faint">
+                <span className="px-4 py-2.5 border-r border-border" />
+                <span className="px-6 py-2.5">Formation</span>
+                <span className="px-4 py-2.5">Niveau</span>
+                <span className="px-4 py-2.5">Durée</span>
+                <span />
+              </div>
+
+              {FORMATIONS.map((f) => (
                 <Link
+                  key={f.slug}
                   href={`/formations/${f.slug}`}
-                  className="group border border-border rounded-3xl p-8 bg-surface hover:border-accent/40 hover:shadow-[0_16px_40px_-24px_rgba(36,30,23,0.25)] transition-all flex flex-col h-full"
+                  className="group grid grid-cols-[3.5rem_1fr] md:grid-cols-[4rem_1fr_10rem_9rem_3rem] items-stretch border-b border-border last:border-b-0 hover:bg-accent-dim transition-colors"
                 >
-                  <span className="font-mono text-[10px] text-text-faint mb-6">{f.cellRef}</span>
-                  <h3 className="font-display italic text-xl text-text mb-3 group-hover:text-accent transition-colors">
-                    {f.title}
-                  </h3>
-                  <p className="text-text-dim text-sm font-light leading-relaxed mb-6 flex-1">
-                    {f.tagline}
-                  </p>
-                  <div className="flex items-center justify-between pt-5 border-t border-border">
-                    <span className="font-mono text-[11px] text-text-dim">{f.price}</span>
-                    <span className="text-[10px] uppercase tracking-widest text-accent">Détails →</span>
+                  <span className="font-mono text-[11px] text-text-faint bg-surface border-r border-border px-4 py-6 flex items-start md:items-center">
+                    {f.cellRef}
+                  </span>
+                  <div className="px-6 py-6">
+                    <p className="font-display italic text-xl text-text group-hover:text-accent transition-colors">
+                      {f.title}
+                    </p>
+                    <p className="text-text-dim text-sm font-light mt-1">{f.tagline}</p>
+                    <p className="md:hidden font-mono text-[10px] uppercase tracking-widest text-text-faint mt-3">
+                      {f.level} · {f.duration}
+                    </p>
                   </div>
+                  <span className="hidden md:flex items-center px-4 font-mono text-[11px] text-text-dim">
+                    {f.level}
+                  </span>
+                  <span className="hidden md:flex items-center px-4 font-mono text-[11px] text-text-dim">
+                    {f.duration}
+                  </span>
+                  <span className="hidden md:flex items-center justify-center text-accent">→</span>
                 </Link>
-              </Reveal>
-            ))}
-          </div>
+              ))}
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      {/* COMMUNITY CTA */}
-      <section className="max-w-3xl mx-auto px-6 py-28 text-center">
+      {/* HISTOIRE */}
+      <section className="max-w-5xl mx-auto px-6 py-28">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
+          <Reveal>
+            <div className="md:col-span-5">
+              <p className="cell-label mb-4">Notre histoire</p>
+              <h2 className="font-display italic text-3xl md:text-4xl text-text leading-tight">
+                Né d&apos;un groupe WhatsApp.
+              </h2>
+            </div>
+          </Reveal>
+          <Reveal delay={100}>
+            <div className="md:col-span-7 space-y-5 text-text-dim font-light leading-relaxed">
+              <p>
+                ADN a commencé comme un espace d&apos;entraide : on y partage des
+                fichiers, des questions et des solutions autour de la data. De cet
+                espace est née ADN Academy, pour ceux qui veulent structurer leur
+                apprentissage.
+              </p>
+              <p>
+                Chaque formation se termine par un projet concret et un certificat
+                que n&apos;importe quel recruteur peut vérifier en ligne.
+              </p>
+              <p className="flex flex-wrap gap-x-8 gap-y-2 pt-2">
+                <Link href="/communaute" className="text-xs uppercase tracking-[0.2em] font-bold text-accent hover:underline">
+                  La communauté →
+                </Link>
+                <Link href="/a-propos" className="text-xs uppercase tracking-[0.2em] font-bold text-accent hover:underline">
+                  Notre mission →
+                </Link>
+              </p>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="px-6 pb-28">
         <Reveal>
-          <p className="cell-label mb-4 justify-center flex">ADN Community</p>
-          <h2 className="font-display italic text-3xl md:text-4xl text-text mb-6">
-            Une communauté data francophone, sur WhatsApp.
-          </h2>
-          <p className="text-text-dim font-light leading-relaxed max-w-lg mx-auto mb-10">
-            Échange avec d&apos;autres apprenants, pose tes questions, partage tes
-            fichiers Excel/SQL/R — gratuit et ouvert à tous.
-          </p>
-          <a
-            href="https://wa.me/2250564094530?text=Bonjour%2C%20je%20souhaite%20rejoindre%20ADN%20Community"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-accent text-bg font-mono text-xs uppercase tracking-[0.2em] font-bold px-7 py-4 rounded-full hover:brightness-105 shadow-[0_8px_24px_-8px_rgba(217,98,43,0.5)] transition-all"
-          >
-            Rejoindre sur WhatsApp →
-          </a>
+          <div className="max-w-5xl mx-auto border border-accent/30 bg-accent-dim rounded-2xl p-10 md:p-14 flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div className="max-w-md">
+              <h2 className="font-display italic text-2xl md:text-3xl text-text mb-3">
+                Rejoindre le groupe WhatsApp
+              </h2>
+              <p className="text-text-dim font-light leading-relaxed">
+                Échange avec d&apos;autres apprenants, pose tes questions, partage
+                tes fichiers Excel, SQL et R.
+              </p>
+            </div>
+            <a
+              href={WHATSAPP_JOIN}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0 text-center bg-accent text-bg font-mono text-xs uppercase tracking-[0.2em] font-bold px-7 py-4 rounded-full hover:brightness-105 shadow-[0_8px_24px_-8px_rgba(217,98,43,0.5)] transition-all"
+            >
+              Rejoindre →
+            </a>
+          </div>
         </Reveal>
       </section>
     </main>
